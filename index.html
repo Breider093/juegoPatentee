@@ -858,7 +858,7 @@
           <circle class="timer-track" cx="50" cy="50" r="45"/>
           <circle class="timer-arc" id="timer-arc" cx="50" cy="50" r="45"/>
         </svg>
-        <div class="timer-number" id="timer-number">15</div>
+        <div class="timer-number" id="timer-number">30</div>
       </div>
       <div class="timer-info">
         <div class="timer-label">⏱ TIEMPO RESTANTE — TURNO DE</div>
@@ -963,6 +963,273 @@
   </div>
 </div>
 
+<!-- ══════════════ MATRIZ MODAL ══════════════ -->
+<div id="matriz-modal" style="
+  position:fixed;inset:0;z-index:300;
+  display:none;align-items:flex-start;justify-content:center;
+  background:rgba(0,0,0,0.93);backdrop-filter:blur(16px);
+  padding:0;overflow-y:auto;
+">
+<div style="
+  width:100%;min-height:100%;
+  background:#12121a;border:none;border-radius:0;
+  overflow:hidden;position:relative;
+  animation:mzFadeIn 0.5s cubic-bezier(0.34,1.56,0.64,1);
+">
+
+<style>
+@keyframes mzFadeIn{from{opacity:0;transform:scale(0.88)}to{opacity:1;transform:scale(1)}}
+@keyframes mzBarGrow{from{width:0}to{width:var(--w)}}
+@keyframes mzPulse{0%,100%{opacity:1}50%{opacity:0.4}}
+
+#matriz-modal .mz-header{
+  padding:2rem 4rem;
+  background:linear-gradient(135deg,rgba(0,229,255,0.06),rgba(255,61,113,0.06));
+  border-bottom:1px solid #1e1e2e;
+  display:flex;align-items:center;justify-content:space-between;gap:1rem;
+}
+#matriz-modal .mz-title{
+  font-family:'Bebas Neue',cursive;font-size:1.8rem;letter-spacing:0.05em;
+  background:linear-gradient(90deg,#00e5ff,#ffd700,#ff3d71);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;
+}
+#matriz-modal .mz-subtitle{
+  font-family:'IBM Plex Mono',monospace;font-size:0.62rem;letter-spacing:0.15em;
+  text-transform:uppercase;color:#555570;margin-top:0.3rem;
+}
+#matriz-modal .mz-close{
+  font-family:'Bebas Neue',cursive;font-size:1rem;letter-spacing:0.1em;
+  padding:0.5rem 1.1rem;background:transparent;color:#555570;
+  border:1px solid #1e1e2e;border-radius:4px;cursor:pointer;transition:all 0.2s;flex-shrink:0;
+}
+#matriz-modal .mz-close:hover{color:#e8e8f0;border-color:#555570;}
+#matriz-modal .mz-result-banner{
+  display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap;
+  padding:1rem 4rem;background:rgba(255,215,0,0.04);border-bottom:1px solid #1e1e2e;
+}
+#matriz-modal .mz-rb-item{text-align:center;}
+#matriz-modal .mz-rb-label{
+  font-family:'IBM Plex Mono',monospace;font-size:0.56rem;
+  letter-spacing:0.18em;text-transform:uppercase;color:#555570;margin-bottom:0.15rem;
+}
+#matriz-modal .mz-rb-val{font-family:'Bebas Neue',cursive;font-size:1.6rem;line-height:1;}
+#matriz-modal .mz-rb-divider{width:1px;height:36px;background:#1e1e2e;flex-shrink:0;}
+#matriz-modal .mz-body{padding:2rem 4rem 3rem;max-width:none;}
+#matriz-modal .mz-section-label{
+  font-family:'IBM Plex Mono',monospace;font-size:0.6rem;letter-spacing:0.22em;
+  text-transform:uppercase;color:#555570;margin-bottom:1rem;
+}
+#matriz-modal .mz-grid{
+  display:grid;grid-template-columns:160px 1fr 1fr;
+  gap:2px;background:#1e1e2e;border:1px solid #1e1e2e;
+  border-radius:8px;overflow:hidden;margin-bottom:2rem;
+}
+#matriz-modal .mz-corner{
+  background:#0e0e18;display:flex;align-items:center;justify-content:center;
+  padding:0.75rem;position:relative;
+}
+#matriz-modal .mz-corner::after{
+  content:'';position:absolute;bottom:0;right:0;
+  border-style:solid;border-width:0 0 20px 20px;
+  border-color:transparent transparent #1e1e2e transparent;
+}
+#matriz-modal .mz-corner-text{
+  font-family:'IBM Plex Mono',monospace;font-size:0.52rem;
+  letter-spacing:0.12em;text-transform:uppercase;color:#555570;text-align:center;line-height:1.4;
+}
+#matriz-modal .mz-ch{
+  background:#0e0e18;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;padding:0.75rem;gap:0.15rem;
+}
+#matriz-modal .mz-ch-tag{
+  font-family:'IBM Plex Mono',monospace;font-size:0.52rem;letter-spacing:0.15em;text-transform:uppercase;
+}
+#matriz-modal .mz-ch-action{font-family:'Bebas Neue',cursive;font-size:1.1rem;letter-spacing:0.05em;}
+#matriz-modal .mz-ch-action.puja{color:#ffd700;}
+#matriz-modal .mz-ch-action.nopuja{color:#555570;}
+#matriz-modal .mz-rh{
+  background:#0e0e18;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;padding:0.75rem;gap:0.15rem;
+}
+#matriz-modal .mz-rh-tag{
+  font-family:'IBM Plex Mono',monospace;font-size:0.52rem;letter-spacing:0.15em;text-transform:uppercase;
+}
+#matriz-modal .mz-rh-action{font-family:'Bebas Neue',cursive;font-size:1.1rem;letter-spacing:0.05em;}
+#matriz-modal .mz-rh-action.puja{color:#ffd700;}
+#matriz-modal .mz-rh-action.nopuja{color:#555570;}
+#matriz-modal .mz-cell{
+  background:#13131e;padding:1.1rem;position:relative;overflow:hidden;transition:background 0.25s;
+}
+#matriz-modal .mz-cell.this-game{
+  background:#16161f;outline:2px solid #ffd700;outline-offset:-2px;
+}
+#matriz-modal .mz-cell-tag{
+  font-family:'IBM Plex Mono',monospace;font-size:0.54rem;letter-spacing:0.14em;
+  text-transform:uppercase;margin-bottom:0.6rem;display:flex;align-items:center;gap:0.35rem;
+}
+#matriz-modal .mz-cell-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;}
+#matriz-modal .mz-prob-wrap{margin-bottom:0.75rem;}
+#matriz-modal .mz-prob-row{display:flex;align-items:center;gap:0.5rem;margin-bottom:0.4rem;}
+#matriz-modal .mz-prob-who{
+  font-family:'IBM Plex Mono',monospace;font-size:0.52rem;letter-spacing:0.1em;
+  text-transform:uppercase;width:56px;flex-shrink:0;
+}
+#matriz-modal .mz-bar-bg{
+  flex:1;height:12px;background:#0a0a0f;border-radius:6px;overflow:hidden;border:1px solid #1e1e2e;
+}
+#matriz-modal .mz-bar-fill{
+  height:100%;border-radius:6px;
+  width:var(--w);animation:mzBarGrow 1s cubic-bezier(0.34,1.56,0.64,1) forwards;
+}
+#matriz-modal .mz-bar-pct{font-family:'Bebas Neue',cursive;font-size:0.9rem;width:34px;text-align:right;flex-shrink:0;}
+#matriz-modal .mz-chips{display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.65rem;}
+#matriz-modal .mz-chip{
+  font-family:'IBM Plex Mono',monospace;font-size:0.6rem;
+  letter-spacing:0.1em;padding:0.22rem 0.65rem;border-radius:3px;border:1px solid;
+}
+#matriz-modal .chip-win{border-color:rgba(0,230,118,0.4);color:#00e676;background:rgba(0,230,118,0.06);}
+#matriz-modal .chip-lose{border-color:rgba(255,61,113,0.4);color:#ff3d71;background:rgba(255,61,113,0.06);}
+#matriz-modal .chip-zero{border-color:#1e1e2e;color:#555570;background:rgba(255,255,255,0.02);}
+#matriz-modal .chip-warn{border-color:rgba(255,215,0,0.4);color:#ffd700;background:rgba(255,215,0,0.06);}
+#matriz-modal .mz-cell-desc{
+  font-family:'IBM Plex Mono',monospace;font-size:0.6rem;color:#555570;
+  line-height:1.55;border-top:1px solid #1e1e2e;padding-top:0.65rem;
+}
+#matriz-modal .mz-cell-desc strong{color:#a0a0b8;}
+#matriz-modal .mz-live-badge{
+  position:absolute;top:0.55rem;right:0.55rem;
+  font-family:'IBM Plex Mono',monospace;font-size:0.5rem;
+  letter-spacing:0.12em;padding:0.12rem 0.4rem;border-radius:2px;
+  border:1px solid #ffd700;color:#ffd700;background:rgba(255,215,0,0.1);
+  animation:mzPulse 1.5s ease-in-out infinite;
+}
+#matriz-modal .mz-legend{display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:2rem;}
+#matriz-modal .mz-legend-card{border:1px solid #1e1e2e;border-radius:6px;padding:0.9rem 1rem;background:#0e0e18;}
+#matriz-modal .mz-leg-icon{font-size:1.2rem;display:block;margin-bottom:0.35rem;}
+#matriz-modal .mz-leg-name{font-family:'Bebas Neue',cursive;font-size:1rem;letter-spacing:0.05em;color:#e8e8f0;margin-bottom:0.2rem;}
+#matriz-modal .mz-leg-desc{font-family:'IBM Plex Mono',monospace;font-size:0.6rem;color:#555570;line-height:1.55;}
+#matriz-modal .mz-footer{
+  padding:1.5rem 4rem 2rem;display:flex;gap:0.75rem;justify-content:center;
+  flex-wrap:wrap;border-top:1px solid #1e1e2e;
+}
+#matriz-modal .mz-btn-close{
+  font-family:'Bebas Neue',cursive;font-size:1.2rem;letter-spacing:0.1em;
+  padding:0.75rem 2rem;background:linear-gradient(135deg,#00e5ff,#7c3aed);
+  color:#fff;border:none;border-radius:4px;cursor:pointer;transition:all 0.2s;
+}
+#matriz-modal .mz-btn-close:hover{filter:brightness(1.1);}
+#matriz-modal .mz-btn-new{
+  font-family:'Bebas Neue',cursive;font-size:1.2rem;letter-spacing:0.1em;
+  padding:0.75rem 2rem;background:transparent;color:#555570;
+  border:1px solid #1e1e2e;border-radius:4px;cursor:pointer;transition:all 0.2s;
+}
+#matriz-modal .mz-btn-new:hover{color:#e8e8f0;border-color:#555570;}
+</style>
+
+<div class="mz-header">
+  <div>
+    <div class="mz-title">Matriz de Probabilidades</div>
+    <div class="mz-subtitle">Análisis cuantitativo del juego · Generado al finalizar</div>
+  </div>
+  <button class="mz-close" onclick="closeMzModal()">✕ CERRAR</button>
+</div>
+
+<div class="mz-result-banner" id="mz-banner"></div>
+
+<div class="mz-body">
+  <div class="mz-section-label">▸ Matriz de pagos 2×2 — <span id="mz-names-label">Empresa 1 vs Empresa 2</span></div>
+
+  <div class="mz-grid">
+    <div class="mz-corner"><div class="mz-corner-text" id="mz-corner">E1 ↓ / E2 →</div></div>
+    <div class="mz-ch">
+      <div class="mz-ch-tag" style="color:#ff3d71" id="mz-ch-b1"></div>
+      <div class="mz-ch-action puja">PUJA</div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:0.5rem;color:#555570;margin-top:0.15rem;">hace oferta</div>
+    </div>
+    <div class="mz-ch">
+      <div class="mz-ch-tag" style="color:#ff3d71" id="mz-ch-b2"></div>
+      <div class="mz-ch-action nopuja">NO PUJA</div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:0.5rem;color:#555570;margin-top:0.15rem;">se retira</div>
+    </div>
+
+    <div class="mz-rh">
+      <div class="mz-rh-tag" style="color:#00e5ff" id="mz-rh-a1"></div>
+      <div class="mz-rh-action puja">PUJA</div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:0.5rem;color:#555570;margin-top:0.15rem;">hace oferta</div>
+    </div>
+
+    <div class="mz-cell" id="mz-cell-war">
+      <div class="mz-live-badge" id="mz-badge-war" style="display:none">★ ESTE JUEGO</div>
+      <div class="mz-cell-tag"><div class="mz-cell-dot" style="background:#ffd700"></div><span style="color:#ffd700">⚔ AMBOS PUJAN</span></div>
+      <div class="mz-prob-wrap" id="mz-prob-war"></div>
+      <div class="mz-chips" id="mz-chips-war"></div>
+      <div class="mz-cell-desc" id="mz-desc-war"></div>
+    </div>
+
+    <div class="mz-cell" id="mz-cell-win1">
+      <div class="mz-live-badge" id="mz-badge-win1" style="display:none">★ ESTE JUEGO</div>
+      <div class="mz-cell-tag"><div class="mz-cell-dot" style="background:#00e5ff"></div><span style="color:#00e5ff" id="mz-tag-win1">✓ GANA E1</span></div>
+      <div class="mz-prob-wrap" id="mz-prob-win1"></div>
+      <div class="mz-chips" id="mz-chips-win1"></div>
+      <div class="mz-cell-desc" id="mz-desc-win1"></div>
+    </div>
+
+    <div class="mz-rh">
+      <div class="mz-rh-tag" style="color:#00e5ff" id="mz-rh-a2"></div>
+      <div class="mz-rh-action nopuja">NO PUJA</div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:0.5rem;color:#555570;margin-top:0.15rem;">se retira</div>
+    </div>
+
+    <div class="mz-cell" id="mz-cell-win2">
+      <div class="mz-live-badge" id="mz-badge-win2" style="display:none">★ ESTE JUEGO</div>
+      <div class="mz-cell-tag"><div class="mz-cell-dot" style="background:#ff3d71"></div><span style="color:#ff3d71" id="mz-tag-win2">✓ GANA E2</span></div>
+      <div class="mz-prob-wrap" id="mz-prob-win2"></div>
+      <div class="mz-chips" id="mz-chips-win2"></div>
+      <div class="mz-cell-desc" id="mz-desc-win2"></div>
+    </div>
+
+    <div class="mz-cell" id="mz-cell-none">
+      <div class="mz-live-badge" id="mz-badge-none" style="display:none">★ ESTE JUEGO</div>
+      <div class="mz-cell-tag"><div class="mz-cell-dot" style="background:#555570"></div><span style="color:#555570">◌ NADIE PUJA</span></div>
+      <div class="mz-prob-wrap" id="mz-prob-none"></div>
+      <div class="mz-chips" id="mz-chips-none"></div>
+      <div class="mz-cell-desc" id="mz-desc-none"></div>
+    </div>
+  </div>
+
+  <div class="mz-section-label" style="margin-top:0.5rem;">▸ Conceptos de Teoría de Juegos</div>
+  <div class="mz-legend">
+    <div class="mz-legend-card">
+      <span class="mz-leg-icon">⚖️</span>
+      <div class="mz-leg-name">Equilibrio de Nash</div>
+      <div class="mz-leg-desc">Ningún jugador puede mejorar su resultado cambiando su estrategia <strong style="color:#a0a0b8">unilateralmente</strong>. En esta subasta, ambas empresas quedan atrapadas pujando aunque supere el valor real.</div>
+    </div>
+    <div class="mz-legend-card">
+      <span class="mz-leg-icon">💸</span>
+      <div class="mz-leg-name">Costo Hundido</div>
+      <div class="mz-leg-desc">El dinero ya apostado <strong style="color:#a0a0b8">no debería</strong> influir en decisiones futuras, pero psicológicamente empuja a seguir pujando para "recuperar lo perdido".</div>
+    </div>
+    <div class="mz-legend-card">
+      <span class="mz-leg-icon">🏆</span>
+      <div class="mz-leg-name">Maldición del Ganador</div>
+      <div class="mz-leg-desc">El ganador frecuentemente paga <strong style="color:#a0a0b8">más de lo que vale</strong> el activo. La presión competitiva distorsiona la valoración racional.</div>
+    </div>
+    <div class="mz-legend-card">
+      <span class="mz-leg-icon">📉</span>
+      <div class="mz-leg-name">Destrucción de Valor</div>
+      <div class="mz-leg-desc">Si la suma de pujas supera $100, <strong style="color:#a0a0b8">se destruye valor neto</strong> entre ambas empresas. El mercado genera un resultado peor que la cooperación.</div>
+    </div>
+  </div>
+</div>
+
+<div class="mz-footer">
+  <button class="mz-btn-close" onclick="closeMzModal()">✓ ENTENDIDO</button>
+  <button class="mz-btn-new" onclick="closeMzModal();resetGame()">↩ NUEVA SUBASTA</button>
+</div>
+</div>
+</div>
+<!-- ══════════════ FIN MATRIZ MODAL ══════════════ -->
+
 <!-- RESULT OVERLAY -->
 <div class="result-overlay" id="result-overlay">
   <div class="result-card" id="result-card">
@@ -996,6 +1263,20 @@
 
   let timerInterval = null;
   let timeLeft = TURN_SECONDS;
+
+  // ─── BROADCAST to matriz-juego via localStorage ──────────────
+  function broadcast(eventType, extra = {}) {
+    const payload = {
+      type: eventType,
+      names: { ...names },
+      state: JSON.parse(JSON.stringify(state)),
+      timeLeft,
+      prizeValue: PRIZE_VALUE,
+      ts: Date.now(),
+      ...extra
+    };
+    try { localStorage.setItem('patente_game', JSON.stringify(payload)); } catch(e) {}
+  }
 
   // ─── SETUP STEPS ────────────────────────────────────────────
 
@@ -1056,6 +1337,7 @@
     document.getElementById('screen-setup').classList.add('hidden');
     document.getElementById('screen-game').classList.add('active');
 
+    broadcast('game_start');
     addLog(`⚡ Subasta iniciada: ${names.A} vs ${names.B}`, 'log-gold');
     addLog(`${names.A} tiene el primer turno — 15 segundos.`, 'log-a');
     updateUI();
@@ -1084,9 +1366,11 @@
     clearInterval(timerInterval);
     timeLeft = TURN_SECONDS;
     renderTimer();
+    broadcast('timer_tick');
     timerInterval = setInterval(() => {
       timeLeft--;
       renderTimer();
+      broadcast('timer_tick');
       if (timeLeft <= 0) {
         clearInterval(timerInterval);
         handleTimeout();
@@ -1116,12 +1400,12 @@
     ring.classList.remove('pulsing');
     block.classList.remove('warn-bg', 'urgent-bg');
 
-    if (timeLeft <= 5) {
+    if (timeLeft <= 3) {
       arc.classList.add('urgent');
       num.classList.add('urgent');
       ring.classList.add('pulsing');
       block.classList.add('urgent-bg');
-    } else if (timeLeft <= 12) {
+    } else if (timeLeft <= 6) {
       arc.classList.add('warn');
       num.classList.add('warn');
       block.classList.add('warn-bg');
@@ -1130,7 +1414,7 @@
     const cur = state.turn;
     turnText.textContent = names[cur];
     turnText.style.color = cur === 'A' ? 'var(--a)' : 'var(--b)';
-    sub.textContent = timeLeft > 5
+    sub.textContent = timeLeft > 6
       ? `tiene ${timeLeft}s para pujar o rendirse`
       : timeLeft > 0
         ? `⚠ ¡Solo ${timeLeft} segundo${timeLeft !== 1 ? 's' : ''}!`
@@ -1148,6 +1432,7 @@
     setTimeout(() => document.body.classList.remove('timeout-flash'), 700);
 
     addLog(`⏰ ¡Tiempo agotado! ${names[timedOut]} no pujó a tiempo.`, 'log-warn');
+    broadcast('timeout', { timedOut, winner });
     setTimeout(() => showResult(winner, timedOut, state.bets[winner], state.bets[timedOut], 'timeout'), 800);
   }
 
@@ -1196,6 +1481,7 @@
       document.getElementById('loss-bar').style.width = pct + '%';
     }
 
+    broadcast('bid', { bidder: company, amount: newBid, increment });
     updateUI();
     startTimer();
   }
@@ -1253,6 +1539,7 @@
     const winner = company === 'A' ? 'B' : 'A';
     addLog(`🏳 ${names[company]} se rinde.`, company === 'A' ? 'log-a' : 'log-b');
     document.getElementById('surrender-menu').classList.remove('open');
+    broadcast('surrender', { loser: company, winner });
     setTimeout(() => showResult(winner, company, state.bets[winner], state.bets[company], 'surrender'), 600);
   }
 
@@ -1314,6 +1601,149 @@
 
     document.getElementById('result-lesson').innerHTML = lesson;
     document.getElementById('result-overlay').classList.add('show');
+    broadcast('result', { winner, loser, winnerBet, loserBet, type });
+    setTimeout(() => showMzModal(winner, loser, winnerBet, loserBet, type), 1800);
+  }
+
+  // ─── MATRIZ DE PROBABILIDADES ────────────────────────────────
+
+  function buildMzBar(who, color, pct) {
+    return `
+      <div class="mz-prob-row">
+        <div class="mz-prob-who" style="color:${color}">${who}</div>
+        <div class="mz-bar-bg">
+          <div class="mz-bar-fill" style="--w:${pct}%;background:${color};opacity:0.85"></div>
+        </div>
+        <div class="mz-bar-pct" style="color:${color}">${pct}%</div>
+      </div>`;
+  }
+
+  function buildMzChip(label, cls) {
+    return `<div class="mz-chip ${cls}">${label}</div>`;
+  }
+
+  function showMzModal(winner, loser, winnerBet, loserBet, type) {
+    const nW  = names[winner];
+    const nL  = names[loser];
+    const nA  = names.A;
+    const nB  = names.B;
+    const P   = PRIZE_VALUE;
+
+    const netWinner = P - winnerBet;
+    const netLoser  = -loserBet;
+    const combined  = winnerBet + loserBet;
+    const destroyed = Math.max(combined - P, 0);
+    const bothBid   = winnerBet > 0 && loserBet > 0;
+
+    const wProb = bothBid ? Math.round((winnerBet / combined) * 100) : 100;
+    const lProb = bothBid ? 100 - wProb : 0;
+
+    let activeCell = 'none';
+    if (bothBid)          activeCell = 'war';
+    else if (winner==='A') activeCell = 'win1';
+    else                   activeCell = 'win2';
+
+    // Names
+    document.getElementById('mz-names-label').textContent = `${nA} vs ${nB}`;
+    document.getElementById('mz-corner').textContent      = `${nA} ↓ / ${nB} →`;
+    ['mz-ch-b1','mz-ch-b2'].forEach(id => document.getElementById(id).textContent = nB);
+    ['mz-rh-a1','mz-rh-a2'].forEach(id => document.getElementById(id).textContent = nA);
+    document.getElementById('mz-tag-win1').textContent = `✓ GANA ${nA}`;
+    document.getElementById('mz-tag-win2').textContent = `✓ GANA ${nB}`;
+
+    // Banner
+    const bannerWinColor  = winner==='A' ? '#00e5ff' : '#ff3d71';
+    const typeLabel = type==='timeout' ? '⏰ TIEMPO AGOTADO' : type==='surrender' ? '🏳 RENDICIÓN' : '🏆 SUBASTA';
+    document.getElementById('mz-banner').innerHTML = `
+      <div class="mz-rb-item"><div class="mz-rb-label">Resultado</div><div class="mz-rb-val" style="color:#ffd700;font-size:1rem;">${typeLabel}</div></div>
+      <div class="mz-rb-divider"></div>
+      <div class="mz-rb-item"><div class="mz-rb-label">Ganadora 🏆</div><div class="mz-rb-val" style="color:${bannerWinColor}">${nW}</div></div>
+      <div class="mz-rb-divider"></div>
+      <div class="mz-rb-item"><div class="mz-rb-label">Puja ganadora</div><div class="mz-rb-val">$${winnerBet}</div></div>
+      <div class="mz-rb-divider"></div>
+      <div class="mz-rb-item"><div class="mz-rb-label">Neto ${nW}</div><div class="mz-rb-val" style="color:${netWinner>=0?'#00e676':'#ff3d71'}">${netWinner>=0?'+':''}$${netWinner}</div></div>
+      <div class="mz-rb-divider"></div>
+      <div class="mz-rb-item"><div class="mz-rb-label">Neto ${nL}</div><div class="mz-rb-val" style="color:#ff3d71">$${netLoser}</div></div>
+      ${destroyed>0?`<div class="mz-rb-divider"></div><div class="mz-rb-item"><div class="mz-rb-label">Valor destruido</div><div class="mz-rb-val" style="color:#ff3d71">−$${destroyed}</div></div>`:''}
+    `;
+
+    // Highlight active cell
+    ['war','win1','win2','none'].forEach(k => {
+      document.getElementById(`mz-cell-${k}`).classList.remove('this-game');
+      document.getElementById(`mz-badge-${k}`).style.display = 'none';
+    });
+    document.getElementById(`mz-cell-${activeCell}`).classList.add('this-game');
+    document.getElementById(`mz-badge-${activeCell}`).style.display = 'inline-block';
+
+    // ── CELL WAR: Ambos pujan ────────────────────────────────
+    const aWinProb = winner==='A' ? wProb : lProb;
+    const bWinProb = winner==='B' ? wProb : lProb;
+    document.getElementById('mz-prob-war').innerHTML =
+      buildMzBar(nA, '#00e5ff', aWinProb) + buildMzBar(nB, '#ff3d71', bWinProb);
+    document.getElementById('mz-chips-war').innerHTML =
+      buildMzChip(`${nW} pagó $${winnerBet}`, 'chip-warn') +
+      buildMzChip(`Neto ${nW}: ${netWinner>=0?'+':''}$${netWinner}`, netWinner>=0?'chip-win':'chip-lose') +
+      buildMzChip(`${nL} pagó $${loserBet}`, 'chip-warn') +
+      buildMzChip(`Neto ${nL}: $${netLoser}`, 'chip-lose') +
+      (destroyed>0 ? buildMzChip(`Destruido: $${destroyed}`,'chip-lose') : '');
+    document.getElementById('mz-desc-war').innerHTML =
+      `Ambas empresas pujaron. <strong>${nW}</strong> ganó pagando <strong>$${winnerBet}</strong> por una patente de <strong>$${P}</strong>.
+       ${destroyed>0
+         ? `<strong style="color:#ff3d71">¡Trampa activada!</strong> Entre las dos destruyeron $${destroyed} de valor neto.`
+         : `Resultado eficiente: el ganador no sobrepagó.`}
+       <strong>${nL}</strong> perdió $${loserBet} sin recibir nada — la penalización clave de este juego.`;
+
+    // ── CELL WIN1: Solo E1 puja ──────────────────────────────
+    const e1Bet = winner==='A' && !bothBid ? winnerBet : 1;
+    const e1Net = P - e1Bet;
+    document.getElementById('mz-prob-win1').innerHTML =
+      buildMzBar(nA, '#00e5ff', 100) + buildMzBar(nB, '#555570', 0);
+    document.getElementById('mz-chips-win1').innerHTML =
+      buildMzChip(`${nA} puja: $${e1Bet}`, 'chip-warn') +
+      buildMzChip(`Neto ${nA}: +$${e1Net}`, 'chip-win') +
+      buildMzChip(`${nB}: $0`, 'chip-zero') +
+      buildMzChip('Patente adjudicada', 'chip-win');
+    document.getElementById('mz-desc-win1').innerHTML =
+      `<strong>${nA}</strong> puja $${e1Bet} y <strong>${nB}</strong> no participa.
+       <strong>${nA}</strong> obtiene la patente con ganancia neta de <strong style="color:#00e676">+$${e1Net}</strong>.
+       <strong>${nB}</strong> no pierde dinero pero renuncia a un valor de $${P}.`;
+
+    // ── CELL WIN2: Solo E2 puja ──────────────────────────────
+    const e2Bet = winner==='B' && !bothBid ? winnerBet : 1;
+    const e2Net = P - e2Bet;
+    document.getElementById('mz-prob-win2').innerHTML =
+      buildMzBar(nA, '#555570', 0) + buildMzBar(nB, '#ff3d71', 100);
+    document.getElementById('mz-chips-win2').innerHTML =
+      buildMzChip(`${nA}: $0`, 'chip-zero') +
+      buildMzChip(`${nB} puja: $${e2Bet}`, 'chip-warn') +
+      buildMzChip(`Neto ${nB}: +$${e2Net}`, 'chip-win') +
+      buildMzChip('Patente adjudicada', 'chip-win');
+    document.getElementById('mz-desc-win2').innerHTML =
+      `<strong>${nB}</strong> puja $${e2Bet} y <strong>${nA}</strong> no participa.
+       <strong>${nB}</strong> obtiene la patente con ganancia neta de <strong style="color:#ff3d71">+$${e2Net}</strong>.
+       <strong>${nA}</strong> no pierde dinero pero renuncia a un valor de $${P}.`;
+
+    // ── CELL NONE: Nadie puja ───────────────────────────────
+    document.getElementById('mz-prob-none').innerHTML =
+      buildMzBar(nA, '#555570', 0) + buildMzBar(nB, '#555570', 0);
+    document.getElementById('mz-chips-none').innerHTML =
+      buildMzChip(`${nA}: $0`, 'chip-zero') +
+      buildMzChip(`${nB}: $0`, 'chip-zero') +
+      buildMzChip('Patente sin adjudicar', 'chip-lose') +
+      buildMzChip(`−$${P} valor no capturado`, 'chip-lose');
+    document.getElementById('mz-desc-none').innerHTML =
+      `Ninguna empresa puja. La patente <strong>no se adjudica</strong>.
+       Ambas conservan su capital pero el mercado pierde <strong style="color:#ff3d71">$${P} de valor potencial</strong>.
+       Fallo de mercado: un activo valioso queda sin asignar por temor mutuo.`;
+
+    // Show modal
+    const modal = document.getElementById('matriz-modal');
+    modal.style.display = 'flex';
+    setTimeout(() => modal.scrollTop = 0, 50);
+  }
+
+  function closeMzModal() {
+    document.getElementById('matriz-modal').style.display = 'none';
   }
 
   function resetGame() {
@@ -1322,6 +1752,7 @@
     timeLeft = TURN_SECONDS;
     bidAmount = 1;
     currentStep = 0;
+    broadcast('reset');
 
     // Reset UI
     document.getElementById('bid-amount').textContent = '$0';
@@ -1332,6 +1763,7 @@
     document.getElementById('loss-bar').style.width = '0%';
     document.getElementById('log-body').innerHTML = '';
     document.getElementById('result-overlay').classList.remove('show');
+    document.getElementById('matriz-modal').style.display = 'none';
     document.getElementById('screen-game').classList.remove('active');
     document.getElementById('surrender-menu').classList.remove('open');
 
