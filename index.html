@@ -821,7 +821,7 @@
         <div class="rule-item"><span class="rule-num">01</span><span>La subasta empieza en <span class="highlight">$1</span> y pueden subir en varios montos.</span></div>
         <div class="rule-item"><span class="rule-num">02</span><span>El que puje más alto <span class="highlight">gana la patente</span> ($100 de valor).</span></div>
         <div class="rule-item"><span class="rule-num">03</span><span class="highlight-red">TRAMPA: El segundo lugar también paga su última oferta y no recibe nada.</span></div>
-        <div class="rule-item"><span class="rule-num">04</span><span>Cada equipo tiene <span class="highlight">30 segundos</span> para decidir. Si el tiempo se agota, el rival gana.</span></div>
+        <div class="rule-item"><span class="rule-num">04</span><span>Cada equipo tiene <span class="highlight">15 segundos</span> para decidir. Si el tiempo se agota, el rival gana.</span></div>
         <div class="rule-item"><span class="rule-num">05</span><span>Cualquier empresa puede <span class="highlight">rendirse</span>, pero igual paga lo ofrecido.</span></div>
       </div>
 
@@ -858,7 +858,7 @@
           <circle class="timer-track" cx="50" cy="50" r="45"/>
           <circle class="timer-arc" id="timer-arc" cx="50" cy="50" r="45"/>
         </svg>
-        <div class="timer-number" id="timer-number">30</div>
+        <div class="timer-number" id="timer-number">15</div>
       </div>
       <div class="timer-info">
         <div class="timer-label">⏱ TIEMPO RESTANTE — TURNO DE</div>
@@ -977,7 +977,7 @@
 
 <script>
   const PRIZE_VALUE = 100;
-  const TURN_SECONDS = 30;
+  const TURN_SECONDS = 15;
   const CIRC = 2 * Math.PI * 45; // 282.74
 
   // Company names (set on setup)
@@ -1057,7 +1057,7 @@
     document.getElementById('screen-game').classList.add('active');
 
     addLog(`⚡ Subasta iniciada: ${names.A} vs ${names.B}`, 'log-gold');
-    addLog(`${names.A} tiene el primer turno — 30 segundos.`, 'log-a');
+    addLog(`${names.A} tiene el primer turno — 15 segundos.`, 'log-a');
     updateUI();
     startTimer();
   }
