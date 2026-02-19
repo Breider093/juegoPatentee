@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>La Carrera por la Patente</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;700&family=IBM+Plex+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --border: #1e1e2e;
+    --a: #00e5ff;
+    --b: #ff3d71;
+    --gold: #ffd700;
+    --text: #e8e8f0;
+    --muted: #555570;
+    --accent: #7c3aed;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'IBM Plex Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: 
+      radial-gradient(ellipse 60% 40% at 20% 0%, rgba(0,229,255,0.06) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 80% 100%, rgba(255,61,113,0.06) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  /* GRID LINES */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: 
+      linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+  }
+
+  header {
+    text-align: center;
+    padding: 3rem 2rem 2rem;
+    position: relative;
+  }
+
+  .patent-icon {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: 1rem;
+    animation: float 3s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+
+  header h1 {
+    font-family: 'Bebas Neue', cursive;
+    font-size: clamp(2.5rem, 8vw, 5rem);
+    letter-spacing: 0.05em;
+    background: linear-gradient(90deg, var(--a), var(--gold), var(--b));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+  }
+
+  header p {
+    color: var(--muted);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.8rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-top: 0.5rem;
+  }
+
+  .game-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 1.5rem 4rem;
+  }
+
+  /* PRIZE DISPLAY */
+  .prize-box {
+    border: 1px solid var(--gold);
+    border-radius: 4px;
+    padding: 1.5rem 2rem;
+    text-align: center;
+    margin-bottom: 2rem;
+    position: relative;
+    background: rgba(255,215,0,0.03);
+    overflow: hidden;
+  }
+
+  .prize-box::before {
+    content: '★ PATENTE EN JUEGO ★';
+    position: absolute;
+    top: 0.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--gold);
+    opacity: 0.7;
+  }
+
+  .prize-value {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 4rem;
+    color: var(--gold);
+    line-height: 1;
+    text-shadow: 0 0 40px rgba(255,215,0,0.3);
+  }
+
+  .prize-sub {
+    font-size: 0.8rem;
+    color: var(--muted);
+    font-family: 'IBM Plex Mono', monospace;
+    margin-top: 0.25rem;
+  }
+
+  /* CURRENT BID */
+  .bid-display {
+    text-align: center;
+    margin-bottom: 2.5rem;
+  }
+
+  .bid-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+  }
+
+  .bid-amount {
+    font-family: 'Bebas Neue', cursive;
+    font-size: clamp(4rem, 15vw, 8rem);
+    line-height: 1;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    text-shadow: 0 0 60px currentColor;
+  }
+
+  .bid-amount.bump {
+    animation: bump 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  @keyframes bump {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+    100% { transform: scale(1); }
+  }
+
+  .bid-amount.a-color { color: var(--a); }
+  .bid-amount.b-color { color: var(--b); }
+  .bid-amount.neutral { color: var(--text); }
+
+  .current-bidder-tag {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    padding: 0.3rem 0.8rem;
+    border-radius: 2px;
+    margin-top: 0.5rem;
+    opacity: 0;
+    transition: all 0.3s ease;
+  }
+
+  .current-bidder-tag.visible { opacity: 1; }
+  .current-bidder-tag.tag-a { background: rgba(0,229,255,0.15); border: 1px solid var(--a); color: var(--a); }
+  .current-bidder-tag.tag-b { background: rgba(255,61,113,0.15); border: 1px solid var(--b); color: var(--b); }
+
+  /* WARNING */
+  .warning-strip {
+    background: rgba(255,61,113,0.1);
+    border: 1px solid rgba(255,61,113,0.3);
+    border-radius: 4px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 2rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--b);
+    text-align: center;
+    opacity: 0;
+    transition: opacity 0.5s;
+  }
+
+  .warning-strip.show { opacity: 1; }
+
+  /* COMPANIES */
+  .companies {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .company-card {
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1.5rem;
+    position: relative;
+    background: var(--surface);
+    transition: all 0.3s ease;
+  }
+
+  .company-card.active-bidder {
+    box-shadow: 0 0 0 1px currentColor, 0 0 30px rgba(0,229,255,0.15);
+  }
+
+  .company-card.company-a { --card-color: var(--a); }
+  .company-card.company-b { --card-color: var(--b); }
+
+  .company-card.active-bidder.company-a {
+    border-color: var(--a);
+    box-shadow: 0 0 0 1px var(--a), 0 0 30px rgba(0,229,255,0.15);
+  }
+  .company-card.active-bidder.company-b {
+    border-color: var(--b);
+    box-shadow: 0 0 0 1px var(--b), 0 0 30px rgba(255,61,113,0.15);
+  }
+
+  .company-name {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 2rem;
+    letter-spacing: 0.05em;
+    margin-bottom: 1rem;
+  }
+
+  .company-a .company-name { color: var(--a); }
+  .company-b .company-name { color: var(--b); }
+
+  .company-stat {
+    margin-bottom: 0.75rem;
+  }
+
+  .stat-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 0.2rem;
+  }
+
+  .stat-value {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 1.4rem;
+    font-weight: 700;
+    transition: all 0.3s ease;
+  }
+
+  .company-a .stat-value { color: var(--a); }
+  .company-b .stat-value { color: var(--b); }
+
+  .bet-value { color: var(--text) !important; }
+
+  .active-badge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    padding: 0.2rem 0.5rem;
+    border-radius: 2px;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .company-a .active-badge { background: rgba(0,229,255,0.2); color: var(--a); border: 1px solid var(--a); }
+  .company-b .active-badge { background: rgba(255,61,113,0.2); color: var(--b); border: 1px solid var(--b); }
+
+  .company-card.active-bidder .active-badge { opacity: 1; }
+
+  /* ACTIONS */
+  .action-area {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .turn-indicator {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    margin-bottom: 1rem;
+    min-height: 1.2em;
+  }
+
+  .btn-group {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 1.2rem;
+    letter-spacing: 0.1em;
+    padding: 0.8rem 2rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: white;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+
+  .btn:hover::after { opacity: 0.08; }
+  .btn:active::after { opacity: 0.15; }
+  .btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+  .btn-a {
+    background: var(--a);
+    color: #000;
+  }
+
+  .btn-b {
+    background: var(--b);
+    color: #fff;
+  }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border);
+  }
+
+  .btn-ghost:hover { color: var(--text); border-color: var(--muted); }
+
+  .btn-start {
+    background: linear-gradient(135deg, var(--a), var(--accent));
+    color: white;
+    font-size: 1.5rem;
+    padding: 1rem 3rem;
+  }
+
+  .btn-reset {
+    background: var(--surface);
+    color: var(--muted);
+    border: 1px solid var(--border);
+    font-size: 1rem;
+  }
+
+  /* LOG */
+  .log-section {
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--surface);
+    overflow: hidden;
+  }
+
+  .log-header {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .log-body {
+    max-height: 220px;
+    overflow-y: auto;
+    padding: 0.5rem 0;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+
+  .log-entry {
+    padding: 0.5rem 1rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    animation: slideIn 0.3s ease;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(-10px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .log-time { color: var(--muted); flex-shrink: 0; }
+  .log-text { flex: 1; }
+  .log-a { color: var(--a); }
+  .log-b { color: var(--b); }
+  .log-system { color: var(--muted); font-style: italic; }
+  .log-gold { color: var(--gold); }
+
+  /* RESULT OVERLAY */
+  .result-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.92);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+    backdrop-filter: blur(10px);
+  }
+
+  .result-overlay.show {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .result-card {
+    text-align: center;
+    max-width: 550px;
+    padding: 3rem 2.5rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    transform: scale(0.8);
+    transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .result-overlay.show .result-card { transform: scale(1); }
+
+  .result-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+  }
+
+  .result-card.winner-a::before { background: var(--a); }
+  .result-card.winner-b::before { background: var(--b); }
+
+  .confetti-emoji {
+    font-size: 4rem;
+    display: block;
+    margin-bottom: 1rem;
+    animation: spin 1s ease-in-out;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(-20deg) scale(0); }
+    100% { transform: rotate(0deg) scale(1); }
+  }
+
+  .result-title {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 3rem;
+    letter-spacing: 0.05em;
+    line-height: 1;
+    margin-bottom: 0.5rem;
+  }
+
+  .result-winner-name {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 2.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .result-a { color: var(--a); }
+  .result-b { color: var(--b); }
+
+  .result-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .result-stat {
+    padding: 1rem;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+  }
+
+  .result-stat.winner-stat {
+    border-color: var(--gold);
+    background: rgba(255,215,0,0.05);
+  }
+
+  .result-stat.loser-stat {
+    border-color: rgba(255,61,113,0.3);
+    background: rgba(255,61,113,0.05);
+  }
+
+  .result-stat-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 0.3rem;
+  }
+
+  .result-stat-val {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 2rem;
+  }
+
+  .result-lesson {
+    font-size: 0.8rem;
+    color: var(--muted);
+    line-height: 1.6;
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background: rgba(255,255,255,0.02);
+    border-radius: 4px;
+    border-left: 2px solid var(--accent);
+    text-align: left;
+  }
+
+  /* PHASE SCREENS */
+  .screen {
+    display: none;
+  }
+  .screen.active {
+    display: block;
+  }
+
+  /* BOTTOM RULE */
+  .rules-box {
+    margin-bottom: 2rem;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1.5rem;
+    background: var(--surface);
+  }
+
+  .rules-box h3 {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 1.3rem;
+    color: var(--gold);
+    letter-spacing: 0.05em;
+    margin-bottom: 1rem;
+  }
+
+  .rule-item {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 0.7rem;
+    font-size: 0.82rem;
+    color: var(--muted);
+    line-height: 1.5;
+    align-items: flex-start;
+  }
+
+  .rule-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--accent);
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+  }
+
+  .highlight { color: var(--text); }
+  .highlight-red { color: var(--b); font-weight: 600; }
+
+  /* Surrender button */
+  .btn-surrender {
+    background: transparent;
+    color: var(--b);
+    border: 1px solid var(--b);
+    font-size: 1rem;
+    padding: 0.7rem 1.5rem;
+  }
+
+  /* Progress bar on prize */
+  .loss-meter {
+    margin-top: 1rem;
+    display: none;
+  }
+  .loss-meter.visible { display: block; }
+  .loss-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    margin-bottom: 0.3rem;
+    text-align: center;
+  }
+  .loss-bar-track {
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .loss-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold), var(--b));
+    width: 0%;
+    transition: width 0.5s ease;
+    border-radius: 2px;
+  }
+
+  @media (max-width: 600px) {
+    .companies { grid-template-columns: 1fr; }
+    .btn-group { flex-direction: column; align-items: center; }
+    .result-stats { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <span class="patent-icon">⚡</span>
+  <h1>La Carrera<br>por la Patente</h1>
+  <p>Teoría de Juegos · Subasta de Guerra</p>
+</header>
+
+<div class="game-container">
+
+  <!-- INTRO SCREEN -->
+  <div id="screen-intro" class="screen active">
+    <div class="prize-box">
+      <div class="prize-value">$100</div>
+      <div class="prize-sub">valor de la patente · solo una empresa puede ganarla</div>
+    </div>
+
+    <div class="rules-box">
+      <h3>⚠ Las Reglas del Juego</h3>
+      <div class="rule-item">
+        <span class="rule-num">01</span>
+        <span>La subasta empieza en <span class="highlight">$1 dólar</span> y sube de $1 en $1.</span>
+      </div>
+      <div class="rule-item">
+        <span class="rule-num">02</span>
+        <span>El que puje más alto <span class="highlight">gana la patente</span> ($100 de valor).</span>
+      </div>
+      <div class="rule-item">
+        <span class="rule-num">03</span>
+        <span class="highlight-red">TRAMPA CRÍTICA: El segundo lugar también paga su última oferta... y no recibe nada.</span>
+      </div>
+      <div class="rule-item">
+        <span class="rule-num">04</span>
+        <span>Cualquier empresa puede <span class="highlight">rendirse</span>, pero igual paga lo ofrecido.</span>
+      </div>
+    </div>
+
+    <div class="action-area">
+      <div class="btn-group">
+        <button class="btn btn-start" onclick="startGame()">⚡ INICIAR SUBASTA</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- GAME SCREEN -->
+  <div id="screen-game" class="screen">
+
+    <div class="prize-box">
+      <div class="prize-value">$100</div>
+      <div class="prize-sub">valor de la patente en disputa</div>
+      <div class="loss-meter" id="loss-meter">
+        <div class="loss-label">PÉRDIDA COMBINADA PROYECTADA</div>
+        <div class="loss-bar-track"><div class="loss-bar-fill" id="loss-bar"></div></div>
+      </div>
+    </div>
+
+    <div class="bid-display">
+      <div class="bid-label">OFERTA ACTUAL</div>
+      <div class="bid-amount neutral" id="bid-amount">$0</div>
+      <div class="current-bidder-tag" id="bidder-tag">—</div>
+    </div>
+
+    <div class="warning-strip" id="warning-strip">
+      ⚠ La oferta supera el valor de la patente. Ambas empresas entran en zona de pérdida neta.
+    </div>
+
+    <div class="companies">
+      <div class="company-card company-a" id="card-a">
+        <span class="active-badge">TURNO ▶</span>
+        <div class="company-name">Empresa A</div>
+        <div class="company-stat">
+          <div class="stat-label">Oferta actual</div>
+          <div class="stat-value bet-value" id="bet-a">$0</div>
+        </div>
+        <div class="company-stat">
+          <div class="stat-label">Estado</div>
+          <div class="stat-value" id="status-a">EN ESPERA</div>
+        </div>
+      </div>
+      <div class="company-card company-b" id="card-b">
+        <span class="active-badge">TURNO ▶</span>
+        <div class="company-name">Empresa B</div>
+        <div class="company-stat">
+          <div class="stat-label">Oferta actual</div>
+          <div class="stat-value bet-value" id="bet-b">$0</div>
+        </div>
+        <div class="company-stat">
+          <div class="stat-label">Estado</div>
+          <div class="stat-value" id="status-b">EN ESPERA</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="action-area">
+      <div class="turn-indicator" id="turn-indicator">Empresa A comienza la puja</div>
+      <div class="btn-group" id="btn-group">
+        <button class="btn btn-a" id="btn-bid-a" onclick="placeBid('A')">
+          ⬆ EMPRESA A PUJA
+        </button>
+        <button class="btn btn-b" id="btn-bid-b" onclick="placeBid('B')">
+          ⬆ EMPRESA B PUJA
+        </button>
+        <button class="btn btn-surrender" id="btn-surrender" onclick="showSurrenderMenu()">
+          🏳 RENDIRSE
+        </button>
+      </div>
+
+      <!-- Surrender confirm -->
+      <div id="surrender-menu" style="display:none; margin-top: 1rem;">
+        <div class="turn-indicator" style="color: var(--b);">¿Quién se rinde? El que se rinde paga su oferta y pierde.</div>
+        <div class="btn-group">
+          <button class="btn btn-a" onclick="surrender('A')">🏳 A SE RINDE</button>
+          <button class="btn btn-b" onclick="surrender('B')">🏳 B SE RINDE</button>
+          <button class="btn btn-ghost" onclick="hideSurrenderMenu()">CANCELAR</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="log-section">
+      <div class="log-header">📋 Historial de Pujas</div>
+      <div class="log-body" id="log-body"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- RESULT OVERLAY -->
+<div class="result-overlay" id="result-overlay">
+  <div class="result-card" id="result-card">
+    <span class="confetti-emoji" id="result-emoji">🏆</span>
+    <div class="result-title" id="result-title">GANADOR</div>
+    <div class="result-winner-name" id="result-winner"></div>
+    <div class="result-stats" id="result-stats"></div>
+    <div class="result-lesson" id="result-lesson"></div>
+    <div class="btn-group" style="justify-content:center;">
+      <button class="btn btn-start" onclick="resetGame()">↩ NUEVA SUBASTA</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const PRIZE_VALUE = 100;
+  
+  let state = {
+    currentBid: 0,
+    lastBidder: null, // 'A' or 'B'
+    bets: { A: 0, B: 0 },
+    canBid: { A: true, B: true },
+    turn: 'A',
+    started: false,
+    surrendered: null
+  };
+
+  let logCount = 0;
+
+  function getTime() {
+    return new Date().toLocaleTimeString('es', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  }
+
+  function addLog(text, cls = 'log-system') {
+    const body = document.getElementById('log-body');
+    const entry = document.createElement('div');
+    entry.className = 'log-entry';
+    entry.innerHTML = `<span class="log-time">${getTime()}</span><span class="log-text ${cls}">${text}</span>`;
+    body.appendChild(entry);
+    body.scrollTop = body.scrollHeight;
+    logCount++;
+  }
+
+  function startGame() {
+    document.getElementById('screen-intro').classList.remove('active');
+    document.getElementById('screen-game').classList.add('active');
+    addLog('⚡ Subasta iniciada. ¡Que empiece la guerra de patentes!', 'log-gold');
+    addLog('Empresa A tiene el primer turno.', 'log-a');
+    updateUI();
+  }
+
+  function placeBid(company) {
+    if (state.surrendered) return;
+    
+    // Block if it's not their turn (after first bid)
+    if (state.lastBidder && state.turn !== company) {
+      addLog(`⚠ Es el turno de Empresa ${state.turn}.`, 'log-system');
+      return;
+    }
+
+    const newBid = state.currentBid + 1;
+    state.currentBid = newBid;
+    state.bets[company] = newBid;
+    state.lastBidder = company;
+    state.turn = company === 'A' ? 'B' : 'A';
+
+    // Animate bid amount
+    const bidEl = document.getElementById('bid-amount');
+    bidEl.textContent = `$${newBid}`;
+    bidEl.className = `bid-amount ${company === 'A' ? 'a-color' : 'b-color'}`;
+    bidEl.classList.add('bump');
+    setTimeout(() => bidEl.classList.remove('bump'), 400);
+
+    addLog(`Empresa ${company} puja $${newBid}`, company === 'A' ? 'log-a' : 'log-b');
+
+    if (newBid > PRIZE_VALUE) {
+      document.getElementById('warning-strip').classList.add('show');
+      document.getElementById('loss-meter').classList.add('visible');
+      const totalLoss = (state.bets.A + state.bets.B) - PRIZE_VALUE;
+      const pct = Math.min((totalLoss / 50) * 100, 100);
+      document.getElementById('loss-bar').style.width = pct + '%';
+    }
+
+    updateUI();
+  }
+
+  function updateUI() {
+    // Bets
+    document.getElementById('bet-a').textContent = `$${state.bets.A}`;
+    document.getElementById('bet-b').textContent = `$${state.bets.B}`;
+
+    // Status
+    document.getElementById('status-a').textContent = state.lastBidder === 'A' ? 'LIDERA ▲' : (state.bets.A > 0 ? 'SEGUNDA' : 'EN ESPERA');
+    document.getElementById('status-b').textContent = state.lastBidder === 'B' ? 'LIDERA ▲' : (state.bets.B > 0 ? 'SEGUNDA' : 'EN ESPERA');
+
+    // Active card highlight
+    const cardA = document.getElementById('card-a');
+    const cardB = document.getElementById('card-b');
+    cardA.classList.toggle('active-bidder', state.turn === 'A');
+    cardB.classList.toggle('active-bidder', state.turn === 'B');
+
+    // Bidder tag
+    const tag = document.getElementById('bidder-tag');
+    if (state.lastBidder) {
+      tag.textContent = `EMPRESA ${state.lastBidder} lidera`;
+      tag.className = `current-bidder-tag visible ${state.lastBidder === 'A' ? 'tag-a' : 'tag-b'}`;
+    }
+
+    // Turn indicator
+    const turn = document.getElementById('turn-indicator');
+    if (!state.lastBidder) {
+      turn.textContent = 'Empresa A comienza la puja';
+    } else {
+      turn.textContent = `Turno de Empresa ${state.turn} → siguiente oferta: $${state.currentBid + 1}`;
+    }
+
+    // Button states: disable the current leader's bid (they just bid)
+    document.getElementById('btn-bid-a').disabled = state.lastBidder === 'A';
+    document.getElementById('btn-bid-b').disabled = state.lastBidder === 'B';
+  }
+
+  function showSurrenderMenu() {
+    document.getElementById('surrender-menu').style.display = 'block';
+    document.getElementById('btn-group').style.display = 'none';
+  }
+
+  function hideSurrenderMenu() {
+    document.getElementById('surrender-menu').style.display = 'none';
+    document.getElementById('btn-group').style.display = 'flex';
+  }
+
+  function surrender(company) {
+    hideSurrenderMenu();
+
+    const loser = company;
+    const winner = company === 'A' ? 'B' : 'A';
+
+    // If loser hasn't bid, end without payment
+    const loserBet = state.bets[loser];
+    const winnerBet = state.bets[winner];
+
+    addLog(`🏳 Empresa ${loser} se rinde.`, loser === 'A' ? 'log-a' : 'log-b');
+
+    setTimeout(() => {
+      showResult(winner, loser, winnerBet, loserBet, 'surrender');
+    }, 600);
+  }
+
+  function showResult(winner, loser, winnerBet, loserBet, type) {
+    const overlay = document.getElementById('result-overlay');
+    const card = document.getElementById('result-card');
+    const emoji = document.getElementById('result-emoji');
+    const title = document.getElementById('result-title');
+    const winnerEl = document.getElementById('result-winner');
+    const statsEl = document.getElementById('result-stats');
+    const lessonEl = document.getElementById('result-lesson');
+
+    card.className = `result-card winner-${winner === 'A' ? 'a' : 'b'}`;
+
+    const winColor = winner === 'A' ? 'result-a' : 'result-b';
+    const loseColor = loser === 'A' ? 'result-a' : 'result-b';
+
+    emoji.textContent = type === 'surrender' ? '🏳️' : '🏆';
+    title.textContent = 'PATENTE ADJUDICADA';
+    winnerEl.innerHTML = `<span class="${winColor}">EMPRESA ${winner}</span> <span style="color:var(--gold)">GANA</span>`;
+
+    const netWinner = PRIZE_VALUE - winnerBet;
+    const netLoser = -loserBet;
+
+    statsEl.innerHTML = `
+      <div class="result-stat winner-stat">
+        <div class="result-stat-label">🏆 Empresa ${winner} — GANADORA</div>
+        <div class="result-stat-val ${winColor}">$${winnerBet}</div>
+        <div style="font-size:0.7rem;color:var(--muted);font-family:'IBM Plex Mono',monospace;margin-top:0.3rem;">pagó · recibe patente ($${PRIZE_VALUE})</div>
+        <div style="font-size:0.75rem;color:${netWinner >= 0 ? 'var(--a)' : 'var(--b)'};font-family:'IBM Plex Mono',monospace;margin-top:0.3rem;font-weight:bold;">
+          ${netWinner >= 0 ? '+' : ''}$${netWinner} neto
+        </div>
+      </div>
+      <div class="result-stat loser-stat">
+        <div class="result-stat-label">💸 Empresa ${loser} — PERDEDORA</div>
+        <div class="result-stat-val ${loseColor}">$${loserBet}</div>
+        <div style="font-size:0.7rem;color:var(--muted);font-family:'IBM Plex Mono',monospace;margin-top:0.3rem;">pagó · no recibe nada</div>
+        <div style="font-size:0.75rem;color:var(--b);font-family:'IBM Plex Mono',monospace;margin-top:0.3rem;font-weight:bold;">
+          $${netLoser} neto
+        </div>
+      </div>
+    `;
+
+    let lesson = '';
+    if (winnerBet > PRIZE_VALUE) {
+      const totalLoss = winnerBet + loserBet - PRIZE_VALUE;
+      lesson = `⚠️ <strong>Trampa activada:</strong> La "ganadora" pagó $${winnerBet} por algo que vale $${PRIZE_VALUE}. Entre las dos empresas se perdieron $${totalLoss} en total. Esto ilustra la "maldición del ganador" y la dinámica de la subasta de guerra.`;
+    } else if (winnerBet === loserBet || loserBet === 0) {
+      lesson = `✅ La Empresa ${winner} ganó eficientemente. La Empresa ${loser} cortó pérdidas${loserBet > 0 ? `, pero igual perdió $${loserBet}` : ''}. Esta es la racionalidad difícil de aplicar bajo presión.`;
+    } else {
+      lesson = `📊 La Empresa ${winner} ganó la patente por $${winnerBet}. La Empresa ${loser} pierde $${loserBet} sin recibir nada. El miedo a perder lo invertido empuja a seguir pujando — la trampa central de este juego.`;
+    }
+
+    lessonEl.innerHTML = lesson;
+
+    overlay.classList.add('show');
+  }
+
+  function resetGame() {
+    state = {
+      currentBid: 0,
+      lastBidder: null,
+      bets: { A: 0, B: 0 },
+      canBid: { A: true, B: true },
+      turn: 'A',
+      started: false,
+      surrendered: null
+    };
+
+    document.getElementById('bid-amount').textContent = '$0';
+    document.getElementById('bid-amount').className = 'bid-amount neutral';
+    document.getElementById('bidder-tag').className = 'current-bidder-tag';
+    document.getElementById('warning-strip').classList.remove('show');
+    document.getElementById('loss-meter').classList.remove('visible');
+    document.getElementById('loss-bar').style.width = '0%';
+    document.getElementById('log-body').innerHTML = '';
+    document.getElementById('result-overlay').classList.remove('show');
+    document.getElementById('screen-game').classList.remove('active');
+    document.getElementById('screen-intro').classList.add('active');
+    hideSurrenderMenu();
+  }
+</script>
+
+</body>
+</html>
